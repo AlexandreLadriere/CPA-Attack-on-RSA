@@ -10,7 +10,7 @@ FILE_FORMAT = ".txt"
 def getModulo(file_path):
     f = open(file_path, 'r')
     N = f.read()
-    return N
+    return int(N)
 
 def read_entries(type, number):
     entries_t = []
