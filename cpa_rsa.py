@@ -36,13 +36,11 @@ def M_d_mod_N_last_d_bit(M, d_hyp, N):
     T = T**2 % N
     if (d_hyp[-1] == 1):
         T = T*M % N
-        return hamming_weight(T), T
-    else:
-        return hamming_weight(T), T
+    return hamming_weight(T), T
 
 if __name__ == "__main__":
     mod = getModulo(PATH + N_FILE_PATH)
-    trace_t = read_entries(TRACE_TITLE, NB_MEASURES)
+    trace_t = np.asarray(read_entries(TRACE_TITLE, NB_MEASURES))
     msg_t = read_entries(MSG_TITLE, NB_MEASURES)
 
     for bit in range(1):
@@ -60,13 +58,8 @@ if __name__ == "__main__":
         correl = np.zeros((len(d_hyp), len(trace_t[0])))
         for i in range(len(d_hyp)):
             for k in range (len(trace_t[0])):
-                cur_cor = np.corrcoef(np.asarray(trace_t)[:, k], C_simul_t[:, i])
-                # if not(ma.isnan(cur_cor[0, 1])):
-                #     pass
-                #      # correl[i, k] = cur_cor[0, 1]
-                # else:
-                #     pass
-                    # correl[i, k] = 0
+                correl[i, k] = np.corrcoef(trace_t[:, k], C_simul_t[:, i])
+
     #     for i in range(len(d_hyp)):
     #         if (max(correl[i]) > maxi):
     #             maxi = max(correl[i])
