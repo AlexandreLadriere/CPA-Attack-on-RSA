@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 N_FILE_PATH = "N.txt"
 MSG_TITLE = "msg_"
@@ -10,7 +11,7 @@ FILE_FORMAT = ".txt"
 def getModulo(file_path):
     f = open(file_path, 'r')
     N = f.read()
-    return N
+    return int(N)
 
 def read_entries(type, number):
     entries_t = []
@@ -28,20 +29,27 @@ def read_entries(type, number):
 def hamming_weight(x):
     return bin(x).count("1")
 
-def M_d_mod_N(M, d, N):
-    C_simul = []
+def M_d_mod_N_last_d_bit(M, d_hyp, N):
     T = M
-    for i in range(len(d)-2, -1, -1):
-        T = T**2 % N
-        C_simul.append(hamming_weight(T))
-        if (d[i] == 1):
-            T = T*M % N
-            C_simul.append(hamming_weight(T))
-        else:
-            C_simul.append(0)
-    return C_simul
+    T = T**2 % N
+    if (d[-1] == 1):
+        T = T*M % N
+        return hamming_weight(T)
+    else:
+        return 0
 
 if __name__ == "__main__":
     mod = getModulo(PATH + N_FILE_PATH)
     trace_t = read_entries(TRACE_TITLE, NB_MEASURES)
     msg_t = read_entries(MSG_TITLE, NB_MEASURES)
+
+    d_hyp_init = [[0, 0], [0, 1], [1, 0], [1, 1]]
+    C_simul_t = np.zeros((len(msg_t), len(d_hyp_init)))
+    for i in range (len(d_hyp_init)):
+        d = d_hyp_init[i]
+        for k in range (len(msg_t)):
+            msg = msg_t[k]
+            C_simul_t[k, i] = M_d_mod_N_last_d_bit(msg, d, mod)
+    correl = np.correlate(trace_t[:][1], C_simul_t)
+    indices = np.where(correl == np.amax(correl))
+    print(d_hyp_init[indices[1]])
