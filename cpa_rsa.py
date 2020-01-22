@@ -30,14 +30,11 @@ def read_entries(type, number):
 def hamming_weight(x):
     return bin(x).count("1")
 
-def M_d_mod_N_last_d_bit(M, d_hyp, N):
-    T = M
+def M_d_mod_N_last_d_bit(T, d_hyp, N, i):
     T = T**2 % N
     if (d_hyp[-1] == 1):
         T = T*M % N
-        return hamming_weight(T)
-    else:
-        return 0
+    return hamming_weight(T), T
 
 if __name__ == "__main__":
     mod = getModulo(PATH + N_FILE_PATH)
