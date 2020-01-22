@@ -1,19 +1,16 @@
 import matplotlib.pyplot as plt
 
-N_FILE_PATH = "./EMSE/etudiant - 12/N.txt"
-
-
-def getModulo(file_path):
-    f = open(file_path, 'r')
-    N = f.read()
-    return N
-
+N_FILE_PATH = "N.txt"
 MSG_TITLE = "msg_"
 TRACE_TITLE = "curve_"
 PATH = "./EMSE/etudiant - 12/"
 NB_MEASURES = 999
 FILE_FORMAT = ".txt"
 
+def getModulo(file_path):
+    f = open(file_path, 'r')
+    N = f.read()
+    return N
 
 def read_entries(type, number):
     entries_t = []
@@ -26,14 +23,7 @@ def read_entries(type, number):
                 entries_t.append(int(line.split()[0]))
     return entries_t
 
-
 # numpy.correlate
-#
-
-trace_t = read_entries(TRACE_TITLE, NB_MEASURES)
-msg_t = read_entries(MSG_TITLE, NB_MEASURES)
-print("msg :", msg_t[18])
-print("trace :", trace_t[18])
 
 def hamming_weight(x):
     return bin(x).count("1")
@@ -52,4 +42,6 @@ def M_d_mod_N(M, d, N):
     return C_simul
 
 if __name__ == "__main__":
-    print(getModulo(N_FILE_PATH))
+    mod = getModulo(PATH + N_FILE_PATH)
+    trace_t = read_entries(TRACE_TITLE, NB_MEASURES)
+    msg_t = read_entries(MSG_TITLE, NB_MEASURES)
