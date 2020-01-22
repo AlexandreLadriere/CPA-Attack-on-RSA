@@ -1,4 +1,12 @@
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
+
+N_FILE_PATH = "./EMSE/etudiant - 12/N.txt"
+
+
+def getModulo(file_path):
+    f = open(file_path, 'r')
+    N = f.read()
+    return N
 
 # file = open(".txt", "r")
 
@@ -20,3 +28,6 @@ def M_d_mod_N(M, d, N):
         else:
             C_simul.append(0)
     return C_simul
+
+if __name__ == "__main__":
+    print(getModulo(N_FILE_PATH))
