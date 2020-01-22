@@ -1,9 +1,31 @@
 from matplotlib import pyplot as plt
 
-# file = open(".txt", "r")
+MSG_TITLE = "msg_"
+TRACE_TITLE = "curve_"
+PATH = "./EMSE/etudiant - 12/"
+NB_MEASURES = 999
+FILE_FORMAT = ".txt"
+
+
+def read_entries(type, number):
+    entries_t = []
+    for k in range(number):
+        file = open(PATH+type+str(k)+FILE_FORMAT, "r")
+        for line in file: # read rest of lines
+            if type == TRACE_TITLE:
+                entries_t.append([float(x) for x in line.split()])
+            else:
+                entries_t.append(int(line.split()[0]))
+    return entries_t
+
 
 # numpy.correlate
 #
+
+trace_t = read_entries(TRACE_TITLE, NB_MEASURES)
+msg_t = read_entries(MSG_TITLE, NB_MEASURES)
+print("msg :", msg_t[18])
+print("trace :", trace_t[18])
 
 def hamming_weight(x):
     return bin(x).count("1")
