@@ -32,7 +32,7 @@ def hamming_weight(x):
 def M_d_mod_N_last_d_bit(M, d_hyp, N):
     T = M
     T = T**2 % N
-    if (d[-1] == 1):
+    if (d_hyp[-1] == 1):
         T = T*M % N
         return hamming_weight(T)
     else:
@@ -50,6 +50,11 @@ if __name__ == "__main__":
         for k in range (len(msg_t)):
             msg = msg_t[k]
             C_simul_t[k, i] = M_d_mod_N_last_d_bit(msg, d, mod)
-    correl = np.correlate(trace_t[:][1], C_simul_t)
-    indices = np.where(correl == np.amax(correl))
-    print(d_hyp_init[indices[1]])
+    maxi = 0
+    imax = 0
+    for i in range(len(d_hyp_init)):
+        correl = np.correlate(trace_t[:][1], C_simul_t[:, i])
+        if (correl.any() > maxi):
+            maxi = correl.any()
+            imax = i
+    print(d_hyp_init[imax])
