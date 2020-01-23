@@ -93,10 +93,10 @@ if __name__ == "__main__":
         # print("mat_corr_ones =", mat_corr_ones)
         corr_coef_zeros = mat_corr_zeros[1][0]
         corr_coef_ones = mat_corr_ones[1][0]
-        if (corr_coef_ones <= corr_coef_zeros):
+        if (corr_coef_ones <= corr_coef_zeros): # it is highly possible that it is a 0
             d_hyp = [0] + d_hyp
             cpt += 1
-        else:
+        else: # it is highly possible that is a 1
             d_hyp = [1] + d_hyp
             cpt += 2
         # print("cpt =", cpt)
