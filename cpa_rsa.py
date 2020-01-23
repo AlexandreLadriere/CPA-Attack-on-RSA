@@ -61,9 +61,11 @@ def M_d_mod_N(M, d, N):
         if (d[i] == 1):
             T = (T*M) % N
             if i == 0:
+                # The end
                 hw = hamming_weight(T)
         else:
             if i == 0:
+                # The end
                 T = (T**2) % N
                 hw = hamming_weight(T)
     return hw
@@ -76,7 +78,7 @@ if __name__ == "__main__":
     array_hw_zeros = np.zeros((NB_MEASURES, 1))
     array_hw_ones = np.zeros((NB_MEASURES, 1))
     cpt = 1
-    while cpt < KEY_LENGTH+4: # Don't know why it works with +4
+    while trace_t[0][cpt] != -1000:
         for k in range(len(msg_t)):
             d_tmp = [0] + d_hyp # 0 hypothesis
             array_hw_zeros[k] = M_d_mod_N(msg_t[k], d_tmp, n)
@@ -84,17 +86,19 @@ if __name__ == "__main__":
             array_hw_ones[k] = M_d_mod_N(msg_t[k], d_tmp, n)
         # print("array_hw_zeros =", array_hw_zeros)
         # print("array_hw_ones =", array_hw_ones)
+        # print("trace_t[:, cpt:cpt + 1] = ", trace_t[:, cpt:cpt + 1])
         mat_corr_zeros = np.corrcoef(array_hw_zeros, trace_t[:, cpt:cpt + 1], False)
         mat_corr_ones = np.corrcoef(array_hw_ones, trace_t[:, cpt:cpt + 1], False)
         # print("mat_corr_zeros =", mat_corr_zeros)
         # print("mat_corr_ones =", mat_corr_ones)
         corr_coef_zeros = mat_corr_zeros[1][0]
         corr_coef_ones = mat_corr_ones[1][0]
-        if (corr_coef_ones < corr_coef_zeros):
+        if (corr_coef_ones <= corr_coef_zeros):
             d_hyp = [0] + d_hyp
             cpt += 1
         else:
             d_hyp = [1] + d_hyp
             cpt += 2
         # print("cpt =", cpt)
+    d_hyp.reverse()
     print(d_hyp)
