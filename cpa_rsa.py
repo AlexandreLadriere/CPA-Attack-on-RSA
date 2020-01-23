@@ -31,38 +31,47 @@ def read_entries(type, number):
 def hamming_weight(x):
     return bin(x).count("1")
 
-def M_d_mod_N_last_d_bit(M, d_hyp, N):
-    T = M
+def M_d_mod_N_last_d_bit(M, T, d_hyp, N):
     T = T**2 % N
     if (d_hyp[-1] == 1):
         T = T*M % N
     return hamming_weight(T), T
+
+def list_to_binary(x):
+    return bin(int(''.join(map(str, x)), 2) << 1)
 
 if __name__ == "__main__":
     mod = getModulo(PATH + N_FILE_PATH)
     trace_t = np.asarray(read_entries(TRACE_TITLE, NB_MEASURES))
     msg_t = read_entries(MSG_TITLE, NB_MEASURES)
 
-    for bit in range(1):
+    T_t = [M for M in msg_t]
+    for bit in range(32):
         if bit == 0:
-            d_hyp = [[0, 0], [0, 1], [1, 0], [1, 1]]
+            d_hyp = [[1, 0], [1, 1]]
+            # d_hyp = [[0], [1]]
         else:
             d_hyp = [d_hyp + [0], d_hyp + [1]]
         C_simul_t = np.zeros((len(msg_t), len(d_hyp)))
         for i in range (len(d_hyp)):
             d = d_hyp[i]
-            msg_t_i = msg_t
             for k in range (len(msg_t)):
-                msg = msg_t_i[k]
-                C_simul_t[k, i], msg_t_i[k] = M_d_mod_N_last_d_bit(msg_t_i[k], d, mod)
+                msg = msg_t[k]
+                T = T_t[k]
+                C_simul_t[k, i], T_t[k] = M_d_mod_N_last_d_bit(msg, T, d, mod)
         correl = np.zeros((len(d_hyp), len(trace_t[0])))
         for i in range(len(d_hyp)):
-            for k in range (len(trace_t[0])):
-                correl[i, k] = np.corrcoef(trace_t[:, k], C_simul_t[:, i])
+            for k in range (len([val for val in trace_t[0] if val!=-1000])):
+                correl[i, k] = np.corrcoef(trace_t[:, k], C_simul_t[:, i])[0, 1]
 
-    #     for i in range(len(d_hyp)):
-    #         if (max(correl[i]) > maxi):
-    #             maxi = max(correl[i])
-    #             imax = i
-    #     d_hyp = d_hyp[imax]
-    # print(d_hyp)
+        maxi = -999
+        imax = 0
+        for i in range(len(d_hyp)):
+            if (max(correl[i]) > maxi):
+                maxi = max(correl[i])
+                imax = i
+        d_hyp = d_hyp[imax]
+
+    print("Key found: \n", list_to_binary(d_hyp))
+    print("Key found (reversed): \n", list_to_binary(d_hyp[::-1]))
+    print("Real key: \n 0b101101100000001011110000001")
