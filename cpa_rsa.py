@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import math as ma
 
 N_FILE_PATH = "N.txt"
 MSG_TITLE = "msg_"
@@ -47,38 +46,55 @@ def hamming_weight(x):
     """
     return bin(x).count("1")
 
-def M_d_mod_N_last_d_bit(M, d_hyp, N):
+def M_d_mod_N(M, d, N):
+    """
+    Return the hamming weight of T at the end of the RSA exponentiation
+    :param M: Massage (integer)
+    :param d: Key (bits array)
+    :param N: n parameter (n = p*q) (integer)
+    :return: Hamming weight of the exponentiation result (integer)
+    """
     T = M
-    T = T**2 % N
-    if (d_hyp[-1] == 1):
-        T = T*M % N
-    return hamming_weight(T), T
+    hw = 0 # Hamming Weight of T
+    for i in range(len(d) - 2, -1, -1):
+        T = (T**2) % N
+        if (d[i] == 1):
+            T = (T*M) % N
+            if i == 0:
+                hw = hamming_weight(T)
+        else:
+            if i == 0:
+                T = (T**2) % N
+                hw = hamming_weight(T)
+    return hw
 
 if __name__ == "__main__":
-    mod = getModulo(PATH + N_FILE_PATH)
+    n = getModulo(PATH + N_FILE_PATH)
     trace_t = np.asarray(read_entries(TRACE_TITLE, NB_MEASURES))
     msg_t = read_entries(MSG_TITLE, NB_MEASURES)
-
-    for bit in range(1):
-        if bit == 0:
-            d_hyp = [[0, 0], [0, 1], [1, 0], [1, 1]]
+    d_hyp = [1] # key hypothesis initialization
+    array_hw_zeros = np.zeros((NB_MEASURES, 1))
+    array_hw_ones = np.zeros((NB_MEASURES, 1))
+    cpt = 1
+    while cpt < KEY_LENGTH+4: # Don't know why it works with +4
+        for k in range(len(msg_t)):
+            d_tmp = [0] + d_hyp # 0 hypothesis
+            array_hw_zeros[k] = M_d_mod_N(msg_t[k], d_tmp, n)
+            d_tmp = [1] + d_hyp # 1 hypothesis
+            array_hw_ones[k] = M_d_mod_N(msg_t[k], d_tmp, n)
+        # print("array_hw_zeros =", array_hw_zeros)
+        # print("array_hw_ones =", array_hw_ones)
+        mat_corr_zeros = np.corrcoef(array_hw_zeros, trace_t[:, cpt:cpt + 1], False)
+        mat_corr_ones = np.corrcoef(array_hw_ones, trace_t[:, cpt:cpt + 1], False)
+        # print("mat_corr_zeros =", mat_corr_zeros)
+        # print("mat_corr_ones =", mat_corr_ones)
+        corr_coef_zeros = mat_corr_zeros[1][0]
+        corr_coef_ones = mat_corr_ones[1][0]
+        if (corr_coef_ones < corr_coef_zeros):
+            d_hyp = [0] + d_hyp
+            cpt += 1
         else:
-            d_hyp = [d_hyp + [0], d_hyp + [1]]
-        C_simul_t = np.zeros((len(msg_t), len(d_hyp)))
-        for i in range (len(d_hyp)):
-            d = d_hyp[i]
-            msg_t_i = msg_t
-            for k in range (len(msg_t)):
-                msg = msg_t_i[k]
-                C_simul_t[k, i], msg_t_i[k] = M_d_mod_N_last_d_bit(msg_t_i[k], d, mod)
-        correl = np.zeros((len(d_hyp), len(trace_t[0])))
-        for i in range(len(d_hyp)):
-            for k in range (len(trace_t[0])):
-                correl[i, k] = np.corrcoef(trace_t[:, k], C_simul_t[:, i])
-
-    #     for i in range(len(d_hyp)):
-    #         if (max(correl[i]) > maxi):
-    #             maxi = max(correl[i])
-    #             imax = i
-    #     d_hyp = d_hyp[imax]
-    # print(d_hyp)
+            d_hyp = [1] + d_hyp
+            cpt += 2
+        # print("cpt =", cpt)
+    print(d_hyp)
