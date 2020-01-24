@@ -1,56 +1,11 @@
-import matplotlib.pyplot as plt
 import numpy as np
-
-N_FILE_PATH = "N.txt"
-MSG_TITLE = "msg_"
-TRACE_TITLE = "curve_"
-PATH = "./EMSE/etudiant - 12/"
-NB_MEASURES = 999
-FILE_FORMAT = ".txt"
-KEY_LENGTH = 32
-
-def getModulo(file_path):
-    """
-    Retrieve the n parameter of the RSA algorithm from 
-    the specified text file
-    :return: an integer corresponding to N
-    """
-    f = open(file_path, 'r')
-    N = f.read()
-    return int(N)
-
-def read_entries(type, number):
-    """
-    Reads all the msg and curves file to put their data 
-    into lists of int or float according to their type
-    :param type: Type of data (msg or curve)
-    :param number: Number of file
-    :return: list of int (if type == MSG_TITLE) or 
-    list of list of float (if type == TRACE_TITLE)
-    """
-    entries_t = []
-    for k in range(number):
-        file = open(PATH+type+str(k)+FILE_FORMAT, "r")
-        for line in file: # read rest of lines
-            if type == TRACE_TITLE:
-                entries_t.append([float(x) for x in line.split()])
-            else:
-                entries_t.append(int(line.split()[0]))
-    return entries_t
-
-def hamming_weight(x):
-    """
-    Calcul the Hamming Weight of the given number
-    :param x: Number you want to have the hamming weight of
-    :return: an integer corresponding to the Hamming weight
-    """
-    return bin(x).count("1")
+from utils import *
 
 def M_d_mod_N(M, d, N):
     """
     Return the hamming weight of T at the end of the RSA exponentiation
     :param M: Massage (integer)
-    :param d: Key (bits array)
+    :param d: Key (array of integer (0, 1))
     :param N: n parameter (n = p*q) (integer)
     :return: Hamming weight of the exponentiation result (integer)
     """
@@ -70,35 +25,73 @@ def M_d_mod_N(M, d, N):
                 hw = hamming_weight(T)
     return hw
 
-if __name__ == "__main__":
-    n = getModulo(PATH + N_FILE_PATH)
-    trace_t = np.asarray(read_entries(TRACE_TITLE, NB_MEASURES))
-    msg_t = read_entries(MSG_TITLE, NB_MEASURES)
+def keyCalculationByCPA(n, traces, messages):
+    """
+    Compute the secret key from cypher msg and traces
+    :param n: the modulus (integer)
+    :param traces: Traces retrieved when the RSA computation was made (list of list of foat)
+    :param messages: Cyper msg (list of integer)
+    :return: Secret key (array of integer (0, 1))
+    """
     d_hyp = [1] # key hypothesis initialization
     array_hw_zeros = np.zeros((NB_MEASURES, 1))
     array_hw_ones = np.zeros((NB_MEASURES, 1))
     cpt = 1
-    while trace_t[0][cpt] != -1000:
-        for k in range(len(msg_t)):
+    while traces[0][cpt] != -1000:
+        for k in range(len(messages)):
             d_tmp = [0] + d_hyp # 0 hypothesis
-            array_hw_zeros[k] = M_d_mod_N(msg_t[k], d_tmp, n)
+            array_hw_zeros[k] = M_d_mod_N(messages[k], d_tmp, n)
             d_tmp = [1] + d_hyp # 1 hypothesis
-            array_hw_ones[k] = M_d_mod_N(msg_t[k], d_tmp, n)
-        # print("array_hw_zeros =", array_hw_zeros)
-        # print("array_hw_ones =", array_hw_ones)
-        # print("trace_t[:, cpt:cpt + 1] = ", trace_t[:, cpt:cpt + 1])
-        mat_corr_zeros = np.corrcoef(array_hw_zeros, trace_t[:, cpt:cpt + 1], False)
-        mat_corr_ones = np.corrcoef(array_hw_ones, trace_t[:, cpt:cpt + 1], False)
-        # print("mat_corr_zeros =", mat_corr_zeros)
-        # print("mat_corr_ones =", mat_corr_ones)
+            array_hw_ones[k] = M_d_mod_N(messages[k], d_tmp, n)
+        mat_corr_zeros = np.corrcoef(array_hw_zeros, traces[:, cpt:cpt + 1], False)
+        mat_corr_ones = np.corrcoef(array_hw_ones, traces[:, cpt:cpt + 1], False)
         corr_coef_zeros = mat_corr_zeros[1][0]
         corr_coef_ones = mat_corr_ones[1][0]
         if (corr_coef_ones <= corr_coef_zeros): # it is highly possible that it is a 0
             d_hyp = [0] + d_hyp
             cpt += 1
-        else: # it is highly possible that is a 1
+        else: # it is highly possible that it is a 1
             d_hyp = [1] + d_hyp
             cpt += 2
-        # print("cpt =", cpt)
     d_hyp.reverse()
-    print(d_hyp)
+    return d_hyp
+
+def keyCalculationByFactoring():
+    """
+    Compute the secret key by factoring the mod
+    :return: The secret key d (integer)
+    """
+    n = getModulo(PATH + N_FILE_PATH)
+    (p, q) = prime_factors(n)
+    fi_n = (p-1) * (q-1)
+    d = invmod(E, fi_n)
+    return d
+
+def saveKey(file_path, key_cpa, key_fac):
+    """
+    Save the keys (in bin and dec format) found by factoring and CPA calculation in a file
+    :param file_path: Path for the output file (string)
+    :param key_cpa: Key found by CPA (integer)
+    :param key_dec: Key found by factoring (integer)
+    :return: None
+    """
+    f = open(file_path, 'w+')
+    f.write("KEY CALCULATED BY FACTORING N")
+    f.write("\nKey (bin): " + str(bin(key_fac)))
+    f.write("\nKey (dec): " + str(key_fac))
+    f.write("\n\nKEY CALCULATED BY CPA")
+    f.write("\nKey (bin): " + str(bin(key_cpa)))
+    f.write("\nKey (dec): " + str(key_cpa))
+    f.close()
+
+if __name__ == "__main__":
+    n = getModulo(PATH + N_FILE_PATH)
+    trace_t = np.asarray(read_entries(TRACE_TITLE, NB_MEASURES))
+    msg_t = read_entries(MSG_TITLE, NB_MEASURES)
+    key_cpa = keyCalculationByCPA(n, trace_t, msg_t)
+    key_cpa_int = convertBinListToInt(key_cpa)
+    key_fac_int = keyCalculationByFactoring()
+    print("Key (Factoring) =", bin(key_fac_int))
+    print("Key (CPA) =", bin(key_cpa_int))
+    print("Equal Keys: ", key_fac_int == key_cpa_int)
+    saveKey(KEY_PATH, key_cpa_int, key_fac_int)
