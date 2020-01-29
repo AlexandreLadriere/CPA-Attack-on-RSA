@@ -1,10 +1,17 @@
 # CPA Attack on RSA
+[![GitHub license](https://img.shields.io/github/license/AlexandreLadriere/CPA-Attack-on-RSA.svg)](https://github.com/AlexandreLadriere/CPA-Attack-on-RSA/blob/master/LICENSE)
 
 Python implementation of an attack using CPA on a simplified RSA.
+
+## Contributors
+
+- [Hugo Serieys]
+- [Alexandre Ladrière]
 
 ## Description
 
 The subject of this lab is in the [TP-EMSE-2020.pdf] file (in french) and the [EMSE] folder contains several data sets used for the CPA. Since it is a baby RSA, the key can be retrieved by factorization. The [cpa_rsa.py] script calculates the key by factorization but also by CPA.
+The [Report.pdf] (in french) file explains our implementation of this CPA attack. 
 
 ## Run
 
@@ -34,3 +41,6 @@ The result will also be stored in a file called ```d_DATA-SET-NUMBER.txt``` (ex:
   [cpa_rsa.py]: <cpa_rsa.py>
   [d_12.txt]: <d_12.txt>
   [utils.py]: <utils.py>
+  [Report.pdf]: <Report.pdf>
+  [Hugo Serieys]: <https://github.com/hugoseri>
+  [Alexandre Ladrière]: <https://github.com/AlexandreLadriere>
