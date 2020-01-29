@@ -1,3 +1,6 @@
+import numpy as np
+from matplotlib import pyplot as plt
+
 DATA_SET = "12" # Data set number
 NB_MEASURES = 999 # Number of measures
 KEY_LENGTH = 32 # Length of the key
@@ -44,7 +47,7 @@ def extended_gcd(a, b):
 
 def invmod(a, m):
     """
-    Compute the modular mutliplicative inverse 
+    Compute the modular mutliplicative inverse
     of the given number mod the second number
     :param a: Number you want to know the mod inverse (integer)
     :param m: mod (integer)    print("d (bin) =", bin(d))
@@ -57,7 +60,7 @@ def invmod(a, m):
 
 def getModulo(file_path):
     """
-    Retrieve the n parameter of the RSA algorithm from 
+    Retrieve the n parameter of the RSA algorithm from
     the specified text file
     :param file_path: Path of the mod file (string)
     :return: The modulus N (integer)
@@ -68,11 +71,11 @@ def getModulo(file_path):
 
 def read_entries(type, number):
     """
-    Reads all the msg and curves file to put their data 
+    Reads all the msg and curves file to put their data
     into lists of int or float according to their type
     :param type: Type of data (msg or curve) (string)
     :param number: Number of file (integer)
-    :return: list of int (if type == MSG_TITLE) or 
+    :return: list of int (if type == MSG_TITLE) or
     list of list of float (if type == TRACE_TITLE)
     """
     entries_t = []
@@ -96,8 +99,26 @@ def hamming_weight(x):
 def convertBinListToInt(bin_list):
     """
     Convert a binary list ([1, 0, 1, 0]) to an integer
-    :param bin_list: Binary list 
+    :param bin_list: Binary list
     :return: Integer representation of the binary list (integer)
     """
     dec = int("".join(map(str, bin_list)),2)
     return dec
+
+def plot_correlation_histogram(corr_coeff_y0, corr_coeff_y1):
+    """
+    Plot an histogram of correlation coefficients
+    for each bit for each hypothesis
+    :param corr_coef_y0: list of correlation coefficients for bit = 0 hypothesis
+    :param corr_coef_y1: list of correlation coefficients for bit = 1 hypothesis
+    """
+    bar_width = 0.1
+    index = np.arange(len(corr_coeff_y0))
+    plt.figure()
+    plt.bar(index, corr_coeff_y0, bar_width, label="Hypothèse bit = 0")
+    plt.bar(index+bar_width, corr_coeff_y1, bar_width, label="Hypothèse bit = 1")
+    plt.ylabel("Coefficients de corrélation")
+    plt.xlabel("Bit de la clé")
+    plt.title("Coefficients de corrélation pour chaque bit et selon l'hypothèse de bit")
+    plt.legend()
+    plt.show()

@@ -1,9 +1,8 @@
 import numpy as np
 from utils import *
-from matplotlib import pyplot as plt
 
 corr_coeff_y1 = [] # for report purpose
-corr_coeff_y0 = [] # for report purpose 
+corr_coeff_y0 = [] # for report purpose
 
 def M_d_mod_N(M, d, N):
     """
@@ -101,13 +100,4 @@ if __name__ == "__main__":
     print("Key (by CPA) =", bin(key_cpa_int))
     print("Equal Keys: ", key_fac_int == key_cpa_int)
     saveKey(KEY_PATH, key_cpa_int, key_fac_int)
-
-    plt.style.use('seaborn-deep')
-    plt.hist(corr_coeff_y1,  label='x')
-    # plt.plot(np.arange(len(corr_coeff_y1)), corr_coeff_y1, label = "correlation coefficient for 1 hypothesis")
-    # plt.plot(np.arange(len(corr_coeff_y0)), corr_coeff_y0, label = "correlation coefficient for 1 hypothesis")
-    plt.xlabel("Correlation Coefficients")
-    plt.ylabel("key bit")
-    plt.title("Correlation coefficients for each bits and hypothesis")
-    plt.legend() 
-    plt.show()
+    plot_correlation_histogram(corr_coeff_y0, corr_coeff_y1)
