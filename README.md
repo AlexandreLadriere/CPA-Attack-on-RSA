@@ -1,5 +1,6 @@
 # CPA Attack on RSA
 [![GitHub license](https://img.shields.io/github/license/AlexandreLadriere/CPA-Attack-on-RSA.svg)](https://github.com/AlexandreLadriere/CPA-Attack-on-RSA/blob/master/LICENSE)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fed5568b449641a1b00aa45f70577cd7)](https://www.codacy.com/manual/alexandre.ladriere77/CPA-Attack-on-RSA?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AlexandreLadriere/CPA-Attack-on-RSA&amp;utm_campaign=Badge_Grade)
 
 Python implementation of an attack using CPA on a simplified RSA.
 
