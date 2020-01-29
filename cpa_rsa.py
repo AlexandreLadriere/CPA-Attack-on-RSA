@@ -1,5 +1,9 @@
 import numpy as np
 from utils import *
+from matplotlib import pyplot as plt
+
+corr_coeff_y1 = [] # for report purpose
+corr_coeff_y0 = [] # for report purpose 
 
 def M_d_mod_N(M, d, N):
     """
@@ -47,6 +51,8 @@ def keyCalculationByCPA(n, traces, messages):
         mat_corr_ones = np.corrcoef(array_hw_ones, traces[:, cpt:cpt + 1], False)
         corr_coef_zeros = mat_corr_zeros[1][0]
         corr_coef_ones = mat_corr_ones[1][0]
+        corr_coeff_y1.append(corr_coef_ones)
+        corr_coeff_y0.append(corr_coef_zeros)
         if (corr_coef_ones <= corr_coef_zeros): # it is highly possible that it is a 0
             d_hyp = [0] + d_hyp
             cpt += 1
@@ -91,7 +97,17 @@ if __name__ == "__main__":
     key_cpa = keyCalculationByCPA(n, trace_t, msg_t)
     key_cpa_int = convertBinListToInt(key_cpa)
     key_fac_int = keyCalculationByFactoring()
-    print("Key (Factoring) =", bin(key_fac_int))
-    print("Key (CPA) =", bin(key_cpa_int))
+    print("Key (by factoring) =", bin(key_fac_int))
+    print("Key (by CPA) =", bin(key_cpa_int))
     print("Equal Keys: ", key_fac_int == key_cpa_int)
     saveKey(KEY_PATH, key_cpa_int, key_fac_int)
+
+    plt.style.use('seaborn-deep')
+    plt.hist(corr_coeff_y1,  label='x')
+    # plt.plot(np.arange(len(corr_coeff_y1)), corr_coeff_y1, label = "correlation coefficient for 1 hypothesis")
+    # plt.plot(np.arange(len(corr_coeff_y0)), corr_coeff_y0, label = "correlation coefficient for 1 hypothesis")
+    plt.xlabel("Correlation Coefficients")
+    plt.ylabel("key bit")
+    plt.title("Correlation coefficients for each bits and hypothesis")
+    plt.legend() 
+    plt.show()
